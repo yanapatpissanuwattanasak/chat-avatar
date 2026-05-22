@@ -1,4 +1,4 @@
-export type AvatarType = "blob" | "bean" | "ghost" | "block" | "star" | "cat" | "bunny" | "robot" | "alien";
+export type AvatarType = "person";
 
 export interface User {
   userId: string;

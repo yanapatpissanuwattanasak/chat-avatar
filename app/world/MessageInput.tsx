@@ -15,17 +15,21 @@ const MessageInput = forwardRef<HTMLInputElement, Props>(function MessageInput(
 ) {
   const [value, setValue] = useState("");
 
+  function send() {
+    const trimmed = value.trim();
+    if (!trimmed || trimmed.length > MAX_CHARS) return;
+    onSend(trimmed);
+    setValue("");
+    (document.activeElement as HTMLElement)?.blur();
+  }
+
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Escape") {
       (e.currentTarget as HTMLInputElement).blur();
       return;
     }
     if (e.key !== "Enter") return;
-    const trimmed = value.trim();
-    if (!trimmed || trimmed.length > MAX_CHARS) return;
-    onSend(trimmed);
-    setValue("");
-    (e.currentTarget as HTMLInputElement).blur();
+    send();
   }
 
   const len = value.length;
@@ -54,6 +58,9 @@ const MessageInput = forwardRef<HTMLInputElement, Props>(function MessageInput(
             {len}/{MAX_CHARS}
           </span>
         )}
+        <button className="message-send-btn" onClick={send} aria-label="Send" tabIndex={-1}>
+          ↵
+        </button>
       </div>
     </div>
   );

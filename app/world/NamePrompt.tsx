@@ -14,17 +14,22 @@ export default function NamePrompt({ onSet, onSkip }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
+    // Skip auto-focus on touch devices — prevents keyboard from opening and
+    // shrinking the viewport before the game world bounds are measured
+    if (window.matchMedia("(pointer: fine)").matches) {
+      inputRef.current?.focus();
+    }
   }, []);
 
   function submit() {
     const trimmed = value.trim();
+    inputRef.current?.blur();
     if (trimmed) onSet(trimmed);
     else onSkip();
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Escape") { onSkip(); return; }
+    if (e.key === "Escape") { inputRef.current?.blur(); onSkip(); return; }
     if (e.key === "Enter") { submit(); }
   }
 

@@ -12,6 +12,7 @@ body {
   overflow: hidden;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
 }
 
 /* ── Avatar animations ──────────────────────────────────────────────────── */
@@ -34,6 +35,30 @@ body {
 
 .avatar-wrapper { transform-origin: bottom center; }
 
+/* ── Person walking animation ───────────────────────────────────────────── */
+
+@keyframes person-walk-arm-l {
+  0%, 100% { transform: rotate(-28deg); }
+  50%       { transform: rotate(28deg);  }
+}
+@keyframes person-walk-arm-r {
+  0%, 100% { transform: rotate(28deg);  }
+  50%       { transform: rotate(-28deg); }
+}
+@keyframes person-walk-leg-l {
+  0%, 100% { transform: rotate(28deg);  }
+  50%       { transform: rotate(-28deg); }
+}
+@keyframes person-walk-leg-r {
+  0%, 100% { transform: rotate(-28deg); }
+  50%       { transform: rotate(28deg);  }
+}
+
+.person-walking .person-arm-l { animation: person-walk-arm-l 0.42s ease-in-out infinite; }
+.person-walking .person-arm-r { animation: person-walk-arm-r 0.42s ease-in-out infinite; }
+.person-walking .person-leg-l { animation: person-walk-leg-l 0.42s ease-in-out infinite; }
+.person-walking .person-leg-r { animation: person-walk-leg-r 0.42s ease-in-out infinite; }
+
 .avatar-spawn {
   animation: avatar-spawn 300ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
@@ -51,6 +76,7 @@ body {
 .world-loading {
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background: #87CEEB;
   display: flex;
   align-items: center;
@@ -67,11 +93,23 @@ body {
   position: relative;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   cursor: crosshair;
   user-select: none;
   touch-action: none;
-  background: #87CEEB;
+  background: #285008;
+}
+
+/* ── World canvas (scrolls with camera) ─────────────────────────────────── */
+
+.world-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2000px;
+  height: 1000px;
+  will-change: transform;
 }
 
 /* ── Sky background ─────────────────────────────────────────────────────── */
@@ -82,33 +120,52 @@ body {
   z-index: 0;
   background: linear-gradient(
     to bottom,
-    #5BA8D8 0%,
-    #87CEEB 30%,
-    #B8E4FF 49%,
-    #71C645 50%,
-    #5DB83A 62%,
-    #3A8020 100%
+    #4888B8 0%,
+    #6AAAD4 20%,
+    #8CC0E8 38%,
+    #B4D8F4 47%,
+    #CAE8F8 50%,
+    #A8C855 51%,
+    #78AA38 60%,
+    #559020 74%,
+    #3E6E12 88%,
+    #285008 100%
   );
 }
 
-/* Clouds */
+/* Clouds — big fluffy Stardew-style */
 .world-bg::before {
   content: "";
   position: absolute;
-  top: 8%;
-  left: 12%;
-  width: 110px;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.80);
-  border-radius: 50px;
+  top: 7%;
+  left: 5%;
+  width: 170px;
+  height: 58px;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 90px;
   box-shadow:
-    -28px 10px 0 8px rgba(255, 255, 255, 0.65),
-     28px  8px 0 4px rgba(255, 255, 255, 0.55),
-    160px  2px 0 70px rgba(255, 255, 255, 0.60),
-    300px  6px 0 50px rgba(255, 255, 255, 0.45);
+    55px -22px 0 20px rgba(255,255,255,0.96),
+    -32px 12px 0 14px rgba(255,255,255,0.93),
+    90px -10px 0 22px rgba(255,255,255,0.95),
+    28px -34px 0 12px rgba(255,255,255,0.90),
+    380px  6px 0 105px rgba(255,255,255,0.88),
+    440px -20px 0  72px rgba(255,255,255,0.85),
+    475px  12px 0  52px rgba(255,255,255,0.83),
+    760px   8px 0  95px rgba(255,255,255,0.82),
+    820px -16px 0  62px rgba(255,255,255,0.80),
+    855px  10px 0  40px rgba(255,255,255,0.78),
+    1100px  5px 0  88px rgba(255,255,255,0.80),
+    1158px -18px 0  58px rgba(255,255,255,0.77),
+    1195px  10px 0  38px rgba(255,255,255,0.75),
+    1460px  10px 0 100px rgba(255,255,255,0.78),
+    1525px -22px 0  68px rgba(255,255,255,0.75),
+    1562px  12px 0  44px rgba(255,255,255,0.73),
+    1760px   6px 0  80px rgba(255,255,255,0.74),
+    1820px -12px 0  54px rgba(255,255,255,0.72),
+    1858px   9px 0  36px rgba(255,255,255,0.70);
 }
 
-/* Subtle grass-blade shimmer at ground surface */
+/* Horizon shimmer */
 .world-bg::after {
   content: "";
   position: absolute;
@@ -116,30 +173,25 @@ body {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.4) 20%,
-    rgba(255, 255, 255, 0.2) 50%,
-    rgba(255, 255, 255, 0.4) 80%,
-    transparent
-  );
+  background: rgba(200, 240, 120, 0.35);
 }
 
 /* ── Sun ────────────────────────────────────────────────────────────────── */
 
 .world-sun {
   position: absolute;
-  top: 7%;
-  right: 9%;
-  width: 68px;
-  height: 68px;
+  top: 6%;
+  right: 10%;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   z-index: 1;
-  background: radial-gradient(circle at 40% 40%, #FFF6A0 0%, #FFD700 55%, #FFA000 100%);
+  background: radial-gradient(circle at 38% 35%, #FFFBE8 0%, #FFE44A 38%, #FFC800 70%, #FFAA00 100%);
   box-shadow:
-    0 0 24px rgba(255, 210, 0, 0.65),
-    0 0 60px rgba(255, 160, 0, 0.30);
+    0 0 0 10px rgba(255, 224, 80, 0.15),
+    0 0 0 22px rgba(255, 200, 40, 0.08),
+    0 0 35px rgba(255, 200, 20, 0.60),
+    0 0 80px rgba(255, 160, 0, 0.30);
 }
 
 /* ── Ground / grass area ────────────────────────────────────────────────── */
@@ -154,23 +206,29 @@ body {
   pointer-events: none;
 }
 
-/* Tree silhouettes along the horizon */
+/* Grass edge at horizon */
 .world-ground::before {
   content: "";
   position: absolute;
-  top: -18px;
+  top: -5px;
   left: 0;
   right: 0;
-  height: 20px;
-  background:
-    radial-gradient(ellipse 28px 22px at 8% 100%, rgba(40, 110, 20, 0.55) 100%, transparent 0),
-    radial-gradient(ellipse 22px 18px at 18% 100%, rgba(45, 120, 25, 0.50) 100%, transparent 0),
-    radial-gradient(ellipse 32px 26px at 30% 100%, rgba(35, 100, 15, 0.52) 100%, transparent 0),
-    radial-gradient(ellipse 20px 16px at 40% 100%, rgba(50, 130, 30, 0.48) 100%, transparent 0),
-    radial-gradient(ellipse 26px 20px at 62% 100%, rgba(40, 115, 20, 0.50) 100%, transparent 0),
-    radial-gradient(ellipse 30px 24px at 75% 100%, rgba(38, 108, 18, 0.52) 100%, transparent 0),
-    radial-gradient(ellipse 22px 18px at 85% 100%, rgba(45, 120, 25, 0.48) 100%, transparent 0),
-    radial-gradient(ellipse 28px 22px at 95% 100%, rgba(40, 110, 20, 0.50) 100%, transparent 0);
+  height: 8px;
+  background: rgba(140, 190, 60, 0.30);
+}
+
+.world-ground::after {
+  display: none;
+}
+
+/* ── World decorations ──────────────────────────────────────────────────── */
+
+.world-decor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
 }
 
 /* ── Avatar slots ───────────────────────────────────────────────────────── */
@@ -306,12 +364,53 @@ body {
   z-index: 10;
 }
 
-/* ── Audio button ───────────────────────────────────────────────────────── */
+/* ── Audio control ──────────────────────────────────────────────────────── */
 
-.audio-btn {
+.audio-control {
   position: absolute;
   top: 18px;
   right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+
+.volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 80px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.35);
+  outline: none;
+  cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.90);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.90);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+/* ── Audio button ───────────────────────────────────────────────────────── */
+
+.audio-btn {
   width: 36px;
   height: 36px;
   background: rgba(255, 255, 255, 0.30);
@@ -342,6 +441,7 @@ body {
 .message-input-wrap {
   position: absolute;
   bottom: 28px;
+  bottom: calc(28px + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
@@ -409,6 +509,19 @@ body {
 .char-counter--over {
   color: #FF4D6D;
   text-shadow: 0 0 6px rgba(255, 77, 109, 0.6);
+}
+
+.message-send-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  padding: 2px 4px;
+  cursor: pointer;
+  color: #7CDD3A;
+  font-size: 18px;
+  flex-shrink: 0;
+  line-height: 1;
+  text-shadow: 0 0 8px rgba(124, 221, 58, 0.5);
 }
 
 /* ── Room full overlay ──────────────────────────────────────────────────── */
@@ -562,16 +675,23 @@ body {
   border-color: #aaa;
 }
 
-/* ── Mobile ─────────────────────────────────────────────────────────────── */
+/* ── Mobile / Tablet ────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .presence-counter {
+    bottom: 70px;
+  }
+}
 
 @media (max-width: 480px) {
   .message-input {
-    width: calc(100vw - 80px);
+    width: calc(100vw - 130px);
     font-size: 16px;
   }
 
   .message-input-wrap {
     bottom: 18px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
   }
 
   .presence-counter {
@@ -581,5 +701,13 @@ body {
   .name-prompt-box {
     min-width: calc(100vw - 48px);
     padding: 22px 20px;
+  }
+}
+
+@media (pointer: coarse) {
+  .message-send-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }

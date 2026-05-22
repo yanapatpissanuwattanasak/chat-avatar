@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { User } from "@/lib/types";
 import Avatar from "@/components/avatars/Avatar";
 import SpeechBubble from "@/components/SpeechBubble";
@@ -29,6 +29,21 @@ export default function RemoteAvatarSlot({
   onBubbleDone,
 }: Props) {
   const [muteLabel, setMuteLabel] = useState<string | null>(null);
+  const [facing, setFacing] = useState<"left" | "right">("right");
+  const [isMoving, setIsMoving] = useState(false);
+  const prevXRef = useRef(user.x);
+  const moveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const dx = user.x - prevXRef.current;
+    if (dx !== 0) {
+      setFacing(dx < 0 ? "left" : "right");
+      setIsMoving(true);
+      if (moveTimerRef.current) clearTimeout(moveTimerRef.current);
+      moveTimerRef.current = setTimeout(() => setIsMoving(false), 150);
+    }
+    prevXRef.current = user.x;
+  }, [user.x]);
 
   function handleMute() {
     onToggleMute();
@@ -71,7 +86,7 @@ export default function RemoteAvatarSlot({
 
         {user.name && <p className="avatar-name-label">{user.name}</p>}
 
-        <Avatar avatarType={user.avatarType} strokeColor={user.color} />
+        <Avatar avatarType={user.avatarType} strokeColor={user.color} isMoving={isMoving} facing={facing} />
       </div>
     </div>
   );

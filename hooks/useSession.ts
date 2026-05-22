@@ -5,7 +5,6 @@ import { v4 as uuidv4 } from "uuid";
 import { AvatarType } from "@/lib/types";
 import { randomColor } from "@/lib/palette";
 
-const AVATAR_TYPES: AvatarType[] = ["blob", "bean", "ghost", "block", "star", "cat", "bunny", "robot", "alien"];
 const STORAGE_KEY = "anon-social-session";
 
 interface Session {
@@ -30,7 +29,7 @@ function loadOrCreate(): Session {
 
   const session: Session = {
     sessionId: uuidv4(),
-    avatarType: AVATAR_TYPES[Math.floor(Math.random() * AVATAR_TYPES.length)],
+    avatarType: "person" as AvatarType,
     color: randomColor(),
     name: null,
   };
