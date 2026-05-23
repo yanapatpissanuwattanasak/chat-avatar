@@ -45,6 +45,7 @@ export function useMovement(
   const [cameraX, setCameraX] = useState(0);
 
   const facingRef = useRef<"left" | "right">("right");
+  const mobileDirRef = useRef({ up: false, down: false, left: false, right: false });
 
   const posRef = useRef<Pos>({ x: 0, y: 0 });
   const cameraYRef = useRef(0);
@@ -120,10 +121,11 @@ export function useMovement(
         let moved = false;
 
         const keys = keysRef.current;
-        if (keys.has("ArrowUp")    || keys.has("w") || keys.has("W")) { y -= SPEED; moved = true; }
-        if (keys.has("ArrowDown")  || keys.has("s") || keys.has("S")) { y += SPEED; moved = true; }
-        if (keys.has("ArrowLeft")  || keys.has("a") || keys.has("A")) { x -= SPEED; moved = true; if (facingRef.current !== "left") { facingRef.current = "left"; setFacing("left"); } }
-        if (keys.has("ArrowRight") || keys.has("d") || keys.has("D")) { x += SPEED; moved = true; if (facingRef.current !== "right") { facingRef.current = "right"; setFacing("right"); } }
+        const mob = mobileDirRef.current;
+        if (keys.has("ArrowUp")    || keys.has("w") || keys.has("W") || mob.up)    { y -= SPEED; moved = true; }
+        if (keys.has("ArrowDown")  || keys.has("s") || keys.has("S") || mob.down)  { y += SPEED; moved = true; }
+        if (keys.has("ArrowLeft")  || keys.has("a") || keys.has("A") || mob.left)  { x -= SPEED; moved = true; if (facingRef.current !== "left")  { facingRef.current = "left";  setFacing("left");  } }
+        if (keys.has("ArrowRight") || keys.has("d") || keys.has("D") || mob.right) { x += SPEED; moved = true; if (facingRef.current !== "right") { facingRef.current = "right"; setFacing("right"); } }
 
         if (!moved && tapTargetRef.current) {
           const dx = tapTargetRef.current.x - x;
@@ -192,12 +194,19 @@ export function useMovement(
       if ((e.target as HTMLElement).closest("[data-ui]")) return;
       const rect = worldRef.current.getBoundingClientRect();
       tapTargetRef.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top + cameraYRef.current, // screen → world coords
+        x: e.clientX - rect.left + cameraXRef.current, // screen → world coords
+        y: e.clientY - rect.top + cameraYRef.current,
       };
     },
     [worldRef]
   );
 
-  return { pos, isMoving, facing, cameraX, cameraY, handlePointerDown, posRef };
+  const setMobileDir = useCallback(
+    (dir: Partial<{ up: boolean; down: boolean; left: boolean; right: boolean }>) => {
+      Object.assign(mobileDirRef.current, dir);
+    },
+    []
+  );
+
+  return { pos, isMoving, facing, cameraX, cameraY, handlePointerDown, posRef, setMobileDir };
 }

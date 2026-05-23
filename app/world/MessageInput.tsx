@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, KeyboardEvent, useState } from "react";
+import { forwardRef, KeyboardEvent, useRef, useState } from "react";
 
 interface Props {
   onSend: (text: string) => void;
@@ -14,20 +14,18 @@ const MessageInput = forwardRef<HTMLInputElement, Props>(function MessageInput(
   ref
 ) {
   const [value, setValue] = useState("");
+  const inputElRef = useRef<HTMLInputElement>(null);
 
   function send() {
     const trimmed = value.trim();
     if (!trimmed || trimmed.length > MAX_CHARS) return;
     onSend(trimmed);
     setValue("");
-    (document.activeElement as HTMLElement)?.blur();
+    inputElRef.current?.blur();
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Escape") {
-      (e.currentTarget as HTMLInputElement).blur();
-      return;
-    }
+    if (e.key === "Escape") { e.currentTarget.blur(); return; }
     if (e.key !== "Enter") return;
     send();
   }
@@ -43,7 +41,11 @@ const MessageInput = forwardRef<HTMLInputElement, Props>(function MessageInput(
           &gt;_
         </span>
         <input
-          ref={ref}
+          ref={(el) => {
+            inputElRef.current = el;
+            if (typeof ref === "function") ref(el);
+            else if (ref) ref.current = el;
+          }}
           className="message-input"
           type="text"
           placeholder="say something…"

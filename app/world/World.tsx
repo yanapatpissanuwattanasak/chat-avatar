@@ -11,6 +11,7 @@ import SpeechBubble from "@/components/SpeechBubble";
 import MessageInput from "@/app/world/MessageInput";
 import RemoteAvatarSlot from "@/app/world/RemoteAvatarSlot";
 import AudioManager from "@/components/AudioManager";
+import MobileControls from "@/components/MobileControls";
 import NamePrompt from "@/app/world/NamePrompt";
 
 interface BubbleState {
@@ -38,10 +39,15 @@ export default function World() {
 
   const showNamePrompt = session !== null && session.name === null && !namePromptDone;
 
+  useEffect(() => {
+    if (!showNamePrompt) worldRef.current?.focus();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const onMoveRef = useRef<((pos: Pos) => void) | null>(null);
   const stableOnMove = useCallback((p: Pos) => onMoveRef.current?.(p), []);
 
-  const { pos, isMoving, facing, cameraX, cameraY, handlePointerDown, posRef } = useMovement(
+  const { pos, isMoving, facing, cameraX, cameraY, handlePointerDown, posRef, setMobileDir } = useMovement(
     worldRef,
     stableOnMove
   );
@@ -63,8 +69,10 @@ export default function World() {
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.key !== "Enter") return;
-      const el = document.activeElement as HTMLElement | null;
-      if (el?.tagName === "INPUT" || el?.tagName === "TEXTAREA") return;
+      const target = e.target as HTMLElement | null;
+      if (target?.tagName === "INPUT" || target?.tagName === "TEXTAREA") return;
+      const active = document.activeElement as HTMLElement | null;
+      if (active?.tagName === "INPUT" || active?.tagName === "TEXTAREA") return;
       e.preventDefault();
       inputRef.current?.focus();
     }
@@ -101,10 +109,12 @@ export default function World() {
     updateName(name);
     sendSetName(name);
     setNamePromptDone(true);
+    setTimeout(() => worldRef.current?.focus(), 0);
   }
 
   function handleNameSkip() {
     setNamePromptDone(true);
+    setTimeout(() => worldRef.current?.focus(), 0);
   }
 
   if (!session) return null;
@@ -112,7 +122,7 @@ export default function World() {
   const localBubble = myUserId ? bubbles.get(myUserId) : undefined;
 
   return (
-    <div ref={worldRef} className="world-root" onPointerDown={handlePointerDown}>
+    <div ref={worldRef} tabIndex={-1} className="world-root" onPointerDown={handlePointerDown}>
 
       {/* ── Scrolling world canvas ─────────────────────────────────────────── */}
       <div
@@ -283,6 +293,7 @@ export default function World() {
         <NamePrompt onSet={handleNameSet} onSkip={handleNameSkip} />
       )}
 
+      <MobileControls setMobileDir={setMobileDir} />
       <MessageInput ref={inputRef} onSend={sendMessage} />
     </div>
   );

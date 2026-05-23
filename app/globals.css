@@ -101,6 +101,10 @@ body {
   background: #285008;
 }
 
+.world-root:focus {
+  outline: none;
+}
+
 /* ── World canvas (scrolls with camera) ─────────────────────────────────── */
 
 .world-canvas {
@@ -445,12 +449,15 @@ body {
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
+  width: min(360px, calc(100vw - 148px));
 }
 
 .message-input-inner {
   display: flex;
   align-items: center;
   gap: 6px;
+  width: 100%;
+  overflow: hidden;
   background: rgba(10, 40, 10, 0.80);
   border: 1px solid rgba(100, 200, 60, 0.45);
   border-radius: 6px;
@@ -488,7 +495,8 @@ body {
   font-size: 16px;
   line-height: 1;
   color: #e8ffe0;
-  width: 260px;
+  flex: 1;
+  min-width: 0;
   padding: 6px 0;
   caret-color: #7CDD3A;
   touch-action: manipulation;
@@ -675,6 +683,48 @@ body {
   border-color: #aaa;
 }
 
+/* ── D-pad mobile controls ──────────────────────────────────────────────── */
+
+.dpad {
+  display: block;
+  position: absolute;
+  left: 16px;
+  bottom: 96px;
+  bottom: calc(96px + env(safe-area-inset-bottom));
+  width: 110px;
+  height: 110px;
+  z-index: 10;
+}
+
+.dpad-btn {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1.5px solid rgba(255, 255, 255, 0.40);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  touch-action: none;
+  user-select: none;
+  transition: background 80ms;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dpad-btn:active {
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.dpad-up    { top: 0;  left: 37px; }
+.dpad-left  { top: 37px; left: 0; }
+.dpad-down  { top: 74px; left: 37px; }
+.dpad-right { top: 37px; left: 74px; }
+
 /* ── Mobile / Tablet ────────────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
@@ -684,11 +734,6 @@ body {
 }
 
 @media (max-width: 480px) {
-  .message-input {
-    width: calc(100vw - 130px);
-    font-size: 16px;
-  }
-
   .message-input-wrap {
     bottom: 18px;
     bottom: calc(18px + env(safe-area-inset-bottom));
